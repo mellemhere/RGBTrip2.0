@@ -1,5 +1,6 @@
 ion-card {
     background-color: white;
+
     ion-card-subtitle {
         color: black;
     }
@@ -9,4 +10,20 @@ ion-content {
     ion-card:first-child {
         margin-top: 64px;
     }
+}
+
+.efeito-em-andamento-modal {
+    --width: 60%;
+    --height: 200px;
+}
+
+app-efeito-em-andamento.ion-page {
+    background-color: white;
+    justify-content: normal !important;
+}
+
+ion-list {
+    background-color: whitesmoke;
+    --ion-item-background: #whitesmoke;
+    --ion-item-color: black;
 }
