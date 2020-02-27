@@ -1,0 +1,25 @@
+<ion-content [fullscreen]="true">
+    <ion-card>
+        <ion-card-content>
+            <ion-item lines="none">
+                <ion-avatar slot="start">
+                    <ion-icon name="shuffle-sharp"></ion-icon>
+                </ion-avatar>
+                <ion-label>Aleatório</ion-label>
+            </ion-item>
+        </ion-card-content>
+    </ion-card>
+    <ion-card>
+        <ion-card-header>
+            <ion-card-subtitle>Selecione um efeito:</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+            <ion-item lines="none" *ngFor="let efeito of efeitos">
+                <ion-avatar slot="start">
+                    <ion-icon name="play-circle-outline"></ion-icon>
+                </ion-avatar>
+                <ion-label>{{efeito.nome}}</ion-label>
+            </ion-item>
+        </ion-card-content>
+    </ion-card>
+</ion-content>

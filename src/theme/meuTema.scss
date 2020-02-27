@@ -6,10 +6,8 @@ ion-card {
     }
 }
 
-ion-content {
-    ion-card:first-child {
-        margin-top: 64px;
-    }
+ion-content{
+    --padding-top: 50px;
 }
 
 .efeito-em-andamento-modal {
@@ -26,4 +24,9 @@ ion-list {
     background-color: whitesmoke;
     --ion-item-background: #whitesmoke;
     --ion-item-color: black;
+}
+
+.IroWheel,.IroSlider {
+    margin-left: auto;
+    margin-right: auto;
 }

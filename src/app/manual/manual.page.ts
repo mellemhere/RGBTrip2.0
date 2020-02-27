@@ -5,11 +5,11 @@ import {ExploreContainerComponent} from '../explore-container/explore-container.
 import {EfeitoEmAndamentoComponent} from '../efeito-em-andamento/efeito-em-andamento.component';
 
 @Component({
-    selector: 'app-tab1',
-    templateUrl: 'tab1.page.html',
-    styleUrls: ['tab1.page.scss']
+    selector: 'app-manual',
+    templateUrl: 'manual.page.html',
+    styleUrls: ['manual.page.scss']
 })
-export class Tab1Page implements OnInit {
+export class ManualPage implements OnInit {
 
     private colorWheel;
     private hotColors = [
@@ -20,7 +20,9 @@ export class Tab1Page implements OnInit {
     }
 
     ngOnInit(): void {
-        this.colorWheel = iro.ColorPicker('#colorWheelDemo');
+        this.colorWheel = iro.ColorPicker('#colorWheelDemo', {
+            width: 260
+        });
     }
 
     public changeColor(color) {
