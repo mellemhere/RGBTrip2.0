@@ -6,7 +6,7 @@ ion-card {
     }
 }
 
-ion-content{
+ion-content {
     --padding-top: 50px;
 }
 
@@ -26,7 +26,24 @@ ion-list {
     --ion-item-color: black;
 }
 
-.IroWheel,.IroSlider {
+.IroWheel, .IroSlider {
     margin-left: auto;
     margin-right: auto;
+}
+
+
+
+.efeito-modal {
+    --width: 80%;
+    --height: 50%;
+
+    app-efeito-modal {
+        overflow: visible;
+    }
+
+    .modal-wrapper {
+        background-color: #1d1d1d24;
+        border-radius: 10px;
+        overflow: visible;
+    }
 }

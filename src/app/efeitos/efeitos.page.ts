@@ -1,4 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {EfeitoEmAndamentoComponent} from "../efeito-em-andamento/efeito-em-andamento.component";
+import {ModalController} from "@ionic/angular";
+import {EfeitoModalComponent} from "../efeito-modal/efeito-modal.component";
 
 interface Efeito {
     nome: string;
@@ -10,7 +13,7 @@ interface Efeito {
     templateUrl: 'efeitos.page.html',
     styleUrls: ['efeitos.page.scss']
 })
-export class EfeitosPage {
+export class EfeitosPage implements OnInit{
 
     public efeitos = [
         {
@@ -36,7 +39,23 @@ export class EfeitosPage {
     ] as Efeito[];
 
 
-    constructor() {
+    constructor(public modalController: ModalController) {
+    }
+
+
+    async openCurrentEffect() {
+        const modal = await this.modalController.create({
+            component: EfeitoModalComponent,
+            backdropDismiss: false,
+            cssClass: 'efeito-modal',
+            mode: 'md'
+        });
+        await modal.present();
+        console.log('oi');
+    }
+
+    ngOnInit(): void {
+        this.openCurrentEffect();
     }
 
 }

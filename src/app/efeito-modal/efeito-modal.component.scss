@@ -1,0 +1,28 @@
+.wrapper {
+    padding-top: 40px;
+
+    .title {
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+        padding: 15px 30px;
+        background-color: white;
+        font-weight: bolder;
+        border-radius: 5px;
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+    }
+
+    .stop-btn {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        --ion-color-base: #ef5350 !important;
+        margin-top: 10px;
+    }
+
+}
