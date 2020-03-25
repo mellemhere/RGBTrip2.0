@@ -18,3 +18,27 @@ ion-content ion-toolbar {
 .efeito-em-andamento-modal {
     --width: 60%;
 }
+
+ion-item {
+    --ion-item-background: white;
+    --ion-item-color: black;
+
+    ion-avatar {
+        height: 29px;
+
+        ion-icon {
+            font-size: 30px;
+        }
+
+    }
+
+}
+
+.toggle {
+    --background: #8c8a8a;
+}
+
+ion-card-subtitle {
+    color: black;
+    font-weight: bold;
+}

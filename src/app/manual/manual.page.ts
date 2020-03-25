@@ -12,6 +12,8 @@ import {EfeitoEmAndamentoComponent} from '../efeito-em-andamento/efeito-em-andam
 export class ManualPage implements OnInit {
 
     private colorWheel;
+    public syncPool = false;
+
     private hotColors = [
         '#FFFFFF', '#FF0000', '#7CFC00', '#FFA500', '#FFFF00', '#FF00FF', '#00FFFF', '#00BFFF', '#0000FF', '#800000'
     ];

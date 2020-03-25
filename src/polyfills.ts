@@ -1,3 +1,10 @@
+(window as any).global = window;
+(window as any).global.Buffer = (window as any).global.Buffer || require('buffer').Buffer;
+(window as any).global.process = (window as any).global.process || require('process');
+// @ts-ignore
+window.Buffer = window.Buffer || require('buffer').Buffer;
+// @ts-ignore
+window.process = window.process || require('process');
 /**
  * This file includes polyfills needed by Angular and is loaded before the app.
  * You can add your own extra polyfills to this file.
