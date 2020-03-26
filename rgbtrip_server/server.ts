@@ -26,11 +26,11 @@ const currentState = {
 
 
 const serverWS = new mosca.Server(configuracoesWS, () => {
-    console.log('Servidor WS: Online');
+    console.log('[MQTTWS] Online');
 });
 
 const serverMQTT = new mosca.Server(configuracoesMQTT, () => {
-    console.log('Servidor MQTT: Online');
+    console.log('[MQTT] Online');
 });
 
 
@@ -46,7 +46,6 @@ function broadcastCurrentState() {
 
 serverWS.on('clientConnected', (client: Client) => {
     console.log('[MQTTWS] Cliente conectado: ', client.id);
-    broadcastCurrentState();
 });
 
 // fired when a message is received
@@ -54,4 +53,8 @@ serverWS.on('published', (packet: Packet) => {
     console.log('Published', packet.payload);
 });
 
-console.log('oi');
+serverWS.on('subscribed', (e: string) => {
+    console.log('[MQTTWS] Transmitindo dados para novo clinete');
+    broadcastCurrentState();
+});
+

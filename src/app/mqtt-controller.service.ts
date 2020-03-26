@@ -44,6 +44,8 @@ export class MqttControllerService {
             console.log('[MQTT] Conectado');
             this.connectedCallback();
             this.disconnectedFired = false;
+            this.mqttClient.subscribe('state', (err) => {
+            });
         });
 
         this.mqttClient.on('disconnect', (e) => {
@@ -60,8 +62,9 @@ export class MqttControllerService {
             this.fireDisconnect();
         });
 
-        this.mqttClient.on('message', (e) => {
-            console.log(e);
+        this.mqttClient.on('message', (topic, message, packet) => {
+            console.log(topic);
+            console.log(JSON.parse(message.toString()));
         });
     }
 
