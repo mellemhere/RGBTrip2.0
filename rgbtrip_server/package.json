@@ -1,0 +1,24 @@
+{
+  "name": "rgbtrip_server",
+  "version": "1.0.0",
+  "description": "MQTT Server for RGBTrip",
+  "main": "server.ts",
+  "scripts": {
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpileOnly server.ts",
+    "prod": "tsc && node ./build/server.js"
+  },
+  "author": "mellemhere",
+  "license": "ISC",
+  "dependencies": {
+    "@types/color-string": "^1.5.0",
+    "@types/mosca": "^2.8.2",
+    "color-string": "^1.5.3",
+    "mosca": "^2.8.3",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.31"
+  }
+}
