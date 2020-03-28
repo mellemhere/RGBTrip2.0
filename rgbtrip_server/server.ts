@@ -1,19 +1,20 @@
 import {CurrentState} from './objects';
 import {stringToRGB} from './util';
-import {Client, Packet} from 'mosca';
+import {Socket} from 'socket.io';
 
 const mosca = require('mosca');
+const app = require('express')();
+const httpServer = require('http').createServer(app);
+const ws = require('socket.io')(httpServer);
+
 
 /*
     CONFIGURACOES
  */
-const configuracoesWS = {
-    http: {
-        port: 3000,
-        bundle: true,
-        static: './'
-    }
+const configuracoesHTTP = {
+    port: 80
 };
+
 const configuracoesMQTT = {
     port: 1885
 };
@@ -25,36 +26,43 @@ const currentState = {
 } as CurrentState;
 
 
-const serverWS = new mosca.Server(configuracoesWS, () => {
-    console.log('[MQTTWS] Online');
+httpServer.listen(configuracoesHTTP.port, () => {
+    console.log('[WS] Online');
 });
 
 const serverMQTT = new mosca.Server(configuracoesMQTT, () => {
     console.log('[MQTT] Online');
 });
 
+serverMQTT.on('clientConnected', (client) => {
+    console.log('Usuario se conectou MQTT');
+});
 
-function broadcastCurrentState() {
-    console.log('[MQTTWS] Transmitindo status');
-    serverWS.publish({
-        topic: 'state',
-        payload: Buffer.from(JSON.stringify(currentState)),
-        retain: false
-    });
+serverMQTT.on('published', (packet, client) => {
+    console.log('Published', packet.payload.toString());
+});
+
+function broadcastStateBut(socket: Socket) {
+    console.log('[WS] Enviando mudanca de status');
+    socket.broadcast.emit('state', currentState);
 }
 
+ws.on('connection', (socket: Socket) => {
+    console.log('[WS] Novo usuario conectado');
+    socket.emit('state', currentState);
 
-serverWS.on('clientConnected', (client: Client) => {
-    console.log('[MQTTWS] Cliente conectado: ', client.id);
-});
+    socket.on('disconnect', () => {
+        console.log('[WS] Um usuario saiu');
+    });
 
-// fired when a message is received
-serverWS.on('published', (packet: Packet) => {
-    console.log('Published', packet.payload);
-});
+    socket.on('rgb_change', (dados) => {
+        currentState.light = dados;
+        broadcastStateBut(socket);
+    });
 
-serverWS.on('subscribed', (e: string) => {
-    console.log('[MQTTWS] Transmitindo dados para novo clinete');
-    broadcastCurrentState();
+    socket.on('sync', (state: boolean) => {
+        currentState.sync = state;
+        broadcastStateBut(socket);
+    });
 });
 

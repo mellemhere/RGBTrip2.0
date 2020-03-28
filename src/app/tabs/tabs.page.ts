@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
-import {LoadingController} from "@ionic/angular";
-import {MqttControllerService} from "../mqtt-controller.service";
+import {LoadingController} from '@ionic/angular';
+import {MqttControllerService} from '../mqtt-controller.service';
 
 @Component({
     selector: 'app-tabs',
@@ -10,28 +10,25 @@ import {MqttControllerService} from "../mqtt-controller.service";
 export class TabsPage {
 
 
-    private loading;
+    private loading: boolean | HTMLIonLoadingElement = false;
 
     constructor(public loadingController: LoadingController,
                 private mqttController: MqttControllerService) {
-        if (mqttController.isConnectd()) {
-            this.showLoadding();
-        }
-
-        mqttController.onDisconnect(() => {
-            this.showLoadding();
+        mqttController.connection.subscribe(async (state) => {
+            this.handleLoading(state);
         });
     }
 
-    private async showLoadding() {
-        this.loading = await this.loadingController.create({
-            message: 'Conectado as luzes'
-        });
-        await this.loading.present();
-
-        this.mqttController.onConnected(() => {
-            this.loading.dismiss();
-        });
+    private async handleLoading(state: boolean) {
+        if (!state && this.loading === false) {
+            this.loading = await this.loadingController.create({
+                message: 'Conectado as luzes'
+            });
+            await this.loading.present();
+        } else if (this.loading !== false && state) {
+            (this.loading as HTMLIonLoadingElement).dismiss();
+            this.loading = false;
+        }
     }
 
 

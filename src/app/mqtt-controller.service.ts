@@ -1,9 +1,24 @@
 import {Injectable} from '@angular/core';
-import {connect} from 'mqtt';
+import {Socket} from 'ngx-socket-io';
+import {Observable} from 'rxjs';
 
-interface MqttMessage {
-    topic: string;
-    message: any;
+export interface Effect {
+    id: number;
+    name: string;
+    speed: number;
+    intensity: number;
+}
+
+export interface LightColors {
+    r: number;
+    g: number;
+    b: number;
+}
+
+export interface CurrentState {
+    light: LightColors;
+    effect: Effect | null;
+    sync: boolean;
 }
 
 @Injectable({
@@ -13,68 +28,55 @@ export class MqttControllerService {
 
 
     private mqttClient;
-    private disconnectedFired = false;
-    private disconnectCallback: () => void = () => {
-    };
-    private connectedCallback: () => void = () => {
-    };
+    private $connection: Observable<boolean>;
+    private $state: Observable<CurrentState>;
 
-    constructor() {
-        this.mqttClient = connect('mqtt://localhost:3000');
+    constructor(private socket: Socket) {
+        this.socket.connect();
         this.setupEvents();
     }
 
-    public onDisconnect(cb: () => void) {
-        this.disconnectCallback = cb;
-    }
-
-    public onConnected(cb: () => void) {
-        this.connectedCallback = cb;
-    }
-
-    private fireDisconnect() {
-        if (!this.disconnectedFired) {
-            this.disconnectCallback();
-            this.disconnectedFired = true;
-        }
-    }
-
     private setupEvents() {
-        this.mqttClient.on('connect', (e) => {
-            console.log('[MQTT] Conectado');
-            this.connectedCallback();
-            this.disconnectedFired = false;
-            this.mqttClient.subscribe('state', (err) => {
+        this.$connection = new Observable<boolean>(subscriber => {
+            this.socket.on('connect', () => {
+                console.log('[WS] Conectado ao ws');
+                subscriber.next(true);
+            });
+
+            this.socket.on('connect_error', () => {
+                console.log('[WS] Morreu :( connect_error');
+                subscriber.next(false);
+            });
+
+            this.socket.on('connect_timeout', () => {
+                console.log('[WS] Morreu :( connect_timeout');
+                subscriber.next(false);
+            });
+
+            this.socket.on('error', () => {
+                console.log('[WS] Morreu :( error');
+                subscriber.next(false);
+            });
+
+            this.socket.on('disconnect', () => {
+                console.log('[WS] Morreu :( disconnect');
+                subscriber.next(false);
             });
         });
 
-        this.mqttClient.on('disconnect', (e) => {
-            console.log('[MQTT] Desconectado');
-            this.fireDisconnect();
-        });
-
-        this.mqttClient.on('reconnect', (e) => {
-            console.log('[MQTT] Reconectando');
-            this.fireDisconnect();
-        });
-
-        this.mqttClient.on('error', (e) => {
-            this.fireDisconnect();
-        });
-
-        this.mqttClient.on('message', (topic, message, packet) => {
-            console.log(topic);
-            console.log(JSON.parse(message.toString()));
-        });
+        this.$state = this.socket.fromEvent<CurrentState>('state');
     }
 
-    public isConnectd() {
-        return this.mqttClient.connected;
+
+    get connection(): Observable<boolean> {
+        return this.$connection;
     }
 
-    public sendMessage(message: MqttMessage) {
-        if (this.isConnectd()) {
-            this.mqttClient.publish(message.topic, message.message);
-        }
+    get state(): Observable<CurrentState> {
+        return this.$state;
+    }
+
+    public sendMessage(topic: string, data: any) {
+        this.socket.emit(topic, data);
     }
 }

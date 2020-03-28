@@ -4,14 +4,6 @@
         <ion-col size="12" size-md="6" size-lg="6" size-xl="6">
             <ion-card>
                 <ion-card-header>
-                    <ion-item lines="none">
-                        <ion-label>Piscina em conjunto</ion-label>
-                        <ion-toggle class="toggle" [(ngModel)]="syncPool"></ion-toggle>
-                    </ion-item>
-                </ion-card-header>
-            </ion-card>
-            <ion-card>
-                <ion-card-header>
                     <ion-card-subtitle>Monte sua cor:</ion-card-subtitle>
                 </ion-card-header>
 
@@ -30,6 +22,14 @@
                     <div class="color" *ngFor="let color of hotColors" [ngStyle]="{'background-color': color}"
                          (click)="changeColor(color)"></div>
                 </ion-card-content>
+            </ion-card>
+            <ion-card>
+                <ion-card-header>
+                    <ion-item lines="none">
+                        <ion-label>Piscina em conjunto</ion-label>
+                        <ion-toggle class="toggle" [(ngModel)]="syncPool" (ionChange)="syncChanged()"></ion-toggle>
+                    </ion-item>
+                </ion-card-header>
             </ion-card>
             <ion-card *ngIf="!syncPool">
                 <ion-card-header>
