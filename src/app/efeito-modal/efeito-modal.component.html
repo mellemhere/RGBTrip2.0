@@ -1,24 +1,24 @@
 <div class="wrapper">
 
-    <div class="title">Efeito efeitoso</div>
+    <div class="title">{{wsService.getCurrentEffect.name}}</div>
 
     <div>
-        <ion-item-divider>Intensidade:</ion-item-divider>
-        <ion-item>
+        <ion-item-divider *ngIf="wsService.getCurrentEffect.canChangeIntensity">Intensidade:</ion-item-divider>
+        <ion-item *ngIf="wsService.getCurrentEffect.canChangeIntensity">
             <ion-range min="20" max="80" step="2">
                 <ion-icon size="small" slot="start" name="sunny"></ion-icon>
                 <ion-icon slot="end" name="sunny"></ion-icon>
             </ion-range>
         </ion-item>
-        <ion-item-divider>Velocidade:</ion-item-divider>
-        <ion-item>
+        <ion-item-divider *ngIf="wsService.getCurrentEffect.canChangeVelocity">Velocidade:</ion-item-divider>
+        <ion-item *ngIf="wsService.getCurrentEffect.canChangeVelocity">
             <ion-range min="20" max="80" step="2">
                 <ion-icon size="small" slot="start" name="speedometer-outline"></ion-icon>
                 <ion-icon slot="end" name="speedometer-outline"></ion-icon>
             </ion-range>
         </ion-item>
         <ion-button class="stop-btn" color="danger" expand="block">
-          <ion-icon name="pause-outline" slot="start"></ion-icon>
+            <ion-icon name="pause-outline" slot="start"></ion-icon>
             Parar
         </ion-button>
     </div>

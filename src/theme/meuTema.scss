@@ -32,18 +32,34 @@ ion-list {
 }
 
 
-
 .efeito-modal {
     --width: 80%;
-    --height: 50%;
+    --height: auto;
 
     app-efeito-modal {
         overflow: visible;
     }
 
     .modal-wrapper {
-        background-color: #1d1d1d24;
+        background-color: #1d1d1dc4;
         border-radius: 10px;
         overflow: visible;
+        width: 90vw;
+
+        .ion-page {
+            position: relative;
+            contain: inherit;
+
+            .modal-content {
+                overflow: visible;
+            }
+        }
+
     }
+
+}
+
+ion-card.ios {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
 }

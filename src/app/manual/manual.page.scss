@@ -42,3 +42,39 @@ ion-card-subtitle {
     color: black;
     font-weight: bold;
 }
+
+.custom-label {
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 3px;
+}
+
+ion-toggle {
+    display: block;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.power-btn {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 55%;
+}
+
+.title-stripe {
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid #fff;
+    line-height: 0.1em;
+    margin: 10px 0 10px;
+}
+
+.title-stripe span {
+    background: black;
+    padding:0 10px;
+}

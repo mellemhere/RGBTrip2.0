@@ -1,5 +1,6 @@
 import {CurrentState} from './objects';
 import {stringToRGB} from './util';
+import {effects} from './effects';
 import {Socket} from 'socket.io';
 
 const mosca = require('mosca');
@@ -20,7 +21,7 @@ const configuracoesMQTT = {
 };
 
 const currentState = {
-    effect: null,
+    effect: effects[Math.floor(Math.random() * Math.floor(5))],
     light: stringToRGB('white'),
     sync: false
 } as CurrentState;
@@ -49,20 +50,48 @@ function broadcastStateBut(socket: Socket) {
 
 ws.on('connection', (socket: Socket) => {
     console.log('[WS] Novo usuario conectado');
-    socket.emit('state', currentState);
+    socket.emit('welcome_package', {
+        state: currentState,
+        effects
+    });
 
     socket.on('disconnect', () => {
         console.log('[WS] Um usuario saiu');
     });
 
-    socket.on('rgb_change', (dados) => {
+    socket.on('rgb_churras', (dados) => {
         currentState.light = dados;
         broadcastStateBut(socket);
+    });
+
+    socket.on('rgb_pool', (dados) => {
+        console.log('Color pool ', dados);
+        // currentState.light = dados;
+        // broadcastStateBut(socket);
     });
 
     socket.on('sync', (state: boolean) => {
         currentState.sync = state;
         broadcastStateBut(socket);
     });
+
+    socket.on('pool_power', (state: boolean) => {
+        console.log('Pool power');
+    });
+
 });
 
+
+let b = false;
+
+setInterval(() => {
+    if (b) {
+        console.log('Comecando efeito');
+        ws.emit('effect_start', effects[Math.floor(Math.random() * Math.floor(5))]);
+        b = false;
+    } else {
+        console.log('Parando efeito');
+        ws.emit('effect_end', false);
+        b = true;
+    }
+}, 5000);

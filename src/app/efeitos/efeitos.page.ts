@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {EfeitoEmAndamentoComponent} from "../efeito-em-andamento/efeito-em-andamento.component";
-import {ModalController} from "@ionic/angular";
-import {EfeitoModalComponent} from "../efeito-modal/efeito-modal.component";
+import {ModalController} from '@ionic/angular';
+import {EfeitoModalComponent} from '../efeito-modal/efeito-modal.component';
+import {MqttControllerService} from '../mqtt-controller.service';
 
 interface Efeito {
     nome: string;
@@ -13,49 +13,53 @@ interface Efeito {
     templateUrl: 'efeitos.page.html',
     styleUrls: ['efeitos.page.scss']
 })
-export class EfeitosPage implements OnInit{
+export class EfeitosPage implements OnInit {
 
-    public efeitos = [
-        {
-            nome: 'Clube Carvalho',
-            id: 1
-        },
-        {
-            nome: 'Strobo',
-            id: 2
-        },
-        {
-            nome: 'Balada',
-            id: 3
-        },
-        {
-            nome: 'YMCA',
-            id: 4
-        },
-        {
-            nome: 'Camaleão',
-            id: 4
-        },
-    ] as Efeito[];
+    private effectModal;
 
+    constructor(public modalController: ModalController, public wsService: MqttControllerService) {
+        console.log('sub');
+        wsService.effectChange.subscribe(async (effect) => {
+            if (effect !== false) {
+                await this.openCurrentEffect();
+            } else {
+                await this.closeCurrentEffect();
+            }
+        });
 
-    constructor(public modalController: ModalController) {
+        this.checkState();
     }
 
+    async checkState() {
+        if (this.wsService.getCurrentEffect !== false) {
+            await this.openCurrentEffect();
+        }
+    }
+
+    async closeCurrentEffect() {
+        if (this.effectModal) {
+            console.log('Fechando');
+            await this.effectModal.dismiss();
+        } else {
+            console.log('Nao tem nada para fechar');
+        }
+    }
 
     async openCurrentEffect() {
-        const modal = await this.modalController.create({
+        this.closeCurrentEffect();
+
+        this.effectModal = await this.modalController.create({
             component: EfeitoModalComponent,
             backdropDismiss: false,
             cssClass: 'efeito-modal',
             mode: 'md'
         });
-        await modal.present();
-        console.log('oi');
+        console.log(this.effectModal);
+        await this.effectModal.present();
     }
 
     ngOnInit(): void {
-        this.openCurrentEffect();
+        // this.openCurrentEffect();
     }
 
 }

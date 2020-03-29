@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {MqttControllerService} from '../mqtt-controller.service';
 
 @Component({
-  selector: 'app-efeito-modal',
-  templateUrl: './efeito-modal.component.html',
-  styleUrls: ['./efeito-modal.component.scss'],
+    selector: 'app-efeito-modal',
+    templateUrl: './efeito-modal.component.html',
+    styleUrls: ['./efeito-modal.component.scss'],
 })
 export class EfeitoModalComponent implements OnInit {
 
-  constructor() { }
 
-  ngOnInit() {}
+    constructor(public wsService: MqttControllerService) {
+    }
+
+    ngOnInit() {
+    }
 
 }

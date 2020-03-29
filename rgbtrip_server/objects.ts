@@ -1,10 +1,3 @@
-export interface Effect {
-    id: number;
-    name: string;
-    speed: number;
-    intensity: number;
-}
-
 export interface LightColors {
     r: number;
     g: number;
@@ -20,4 +13,13 @@ export interface CurrentState {
 export interface UpdatePackage {
     topic: string;
     state: CurrentState;
+}
+
+export interface Effect {
+    id: number;
+    name: string;
+    canChangeIntensity: boolean;
+    canChangeVelocity: boolean;
+    intensity: number;
+    velocity: number;
 }
