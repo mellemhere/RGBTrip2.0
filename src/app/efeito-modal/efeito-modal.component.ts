@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {MqttControllerService} from '../mqtt-controller.service';
+import {Effect, WsControllerService} from '../ws-controller.service';
 
 @Component({
     selector: 'app-efeito-modal',
@@ -9,10 +9,22 @@ import {MqttControllerService} from '../mqtt-controller.service';
 export class EfeitoModalComponent implements OnInit {
 
 
-    constructor(public wsService: MqttControllerService) {
+    constructor(public wsService: WsControllerService) {
     }
 
     ngOnInit() {
     }
 
+    public intensityChange() {
+        this.wsService.sendMessage('effect_prop_intensity', {val: (this.wsService.currentEffect as Effect).intensity});
+    }
+
+    public velocityChange() {
+        this.wsService.sendMessage('effect_prop_velocity', {val: (this.wsService.currentEffect as Effect).velocity});
+    }
+
+    public stopEffect() {
+        console.log('Pendindo para parar');
+        this.wsService.sendMessage('effect_stop', true);
+    }
 }

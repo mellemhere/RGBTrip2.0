@@ -10,19 +10,20 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {EfeitoEmAndamentoComponent} from './efeito-em-andamento/efeito-em-andamento.component';
 import {EfeitoModalComponent} from './efeito-modal/efeito-modal.component';
-import {MqttControllerService} from './mqtt-controller.service';
+import {WsControllerService} from './ws-controller.service';
 
 import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io';
+import {FormsModule} from "@angular/forms";
 const config: SocketIoConfig = {url: 'http://' + window.location.hostname, options: {}};
 
 @NgModule({
     declarations: [AppComponent, EfeitoEmAndamentoComponent, EfeitoModalComponent],
     entryComponents: [EfeitoEmAndamentoComponent, EfeitoModalComponent],
-    imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, SocketIoModule.forRoot(config)],
+    imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, SocketIoModule.forRoot(config), FormsModule],
     providers: [
         StatusBar,
         SplashScreen,
-        MqttControllerService,
+        WsControllerService,
         {provide: RouteReuseStrategy, useClass: IonicRouteStrategy}
     ],
     bootstrap: [AppComponent]

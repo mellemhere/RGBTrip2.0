@@ -1,24 +1,18 @@
 import {Component, OnInit} from '@angular/core';
 import {ModalController} from '@ionic/angular';
 import {EfeitoModalComponent} from '../efeito-modal/efeito-modal.component';
-import {MqttControllerService} from '../mqtt-controller.service';
-
-interface Efeito {
-    nome: string;
-    id: number;
-}
+import {Effect, WsControllerService} from '../ws-controller.service';
 
 @Component({
     selector: 'app-efeitos',
     templateUrl: 'efeitos.page.html',
     styleUrls: ['efeitos.page.scss']
 })
-export class EfeitosPage implements OnInit {
+export class EfeitosPage {
 
     private effectModal;
 
-    constructor(public modalController: ModalController, public wsService: MqttControllerService) {
-        console.log('sub');
+    constructor(public modalController: ModalController, public wsService: WsControllerService) {
         wsService.effectChange.subscribe(async (effect) => {
             if (effect !== false) {
                 await this.openCurrentEffect();
@@ -27,21 +21,24 @@ export class EfeitosPage implements OnInit {
             }
         });
 
-        this.checkState();
+        this.checkState().then(() => {
+        });
+    }
+
+
+    public filtroEfeitos(efeito: Effect) {
+        return efeito.id > 0;
     }
 
     async checkState() {
-        if (this.wsService.getCurrentEffect !== false) {
+        if (this.wsService.currentEffect !== false) {
             await this.openCurrentEffect();
         }
     }
 
     async closeCurrentEffect() {
         if (this.effectModal) {
-            console.log('Fechando');
             await this.effectModal.dismiss();
-        } else {
-            console.log('Nao tem nada para fechar');
         }
     }
 
@@ -58,8 +55,9 @@ export class EfeitosPage implements OnInit {
         await this.effectModal.present();
     }
 
-    ngOnInit(): void {
-        // this.openCurrentEffect();
+    public startEffect(effectId: number) {
+        console.log('oi');
+        this.wsService.sendMessage('effect_start', effectId);
     }
 
 }

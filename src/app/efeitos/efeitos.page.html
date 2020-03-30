@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true">
     <ion-card>
         <ion-card-content>
-            <ion-item lines="none">
+            <ion-item lines="none" (click)="startEffect(0);">
                 <ion-avatar slot="start">
                     <ion-icon name="shuffle-sharp"></ion-icon>
                 </ion-avatar>
@@ -14,12 +14,14 @@
             <ion-card-subtitle>Selecione um efeito:</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
-            <ion-item lines="none" *ngFor="let efeito of wsService.availableEffects">
-                <ion-avatar slot="start">
-                    <ion-icon name="play-circle-outline"></ion-icon>
-                </ion-avatar>
-                <ion-label>{{efeito.name}}</ion-label>
-            </ion-item>
+            <ng-container *ngFor="let efeito of wsService.availableEffects.filter(filtroEfeitos)">
+                <ion-item lines="none" (click)="startEffect(efeito.id)">
+                    <ion-avatar slot="start">
+                        <ion-icon name="play-circle-outline"></ion-icon>
+                    </ion-avatar>
+                    <ion-label>{{efeito.name}}</ion-label>
+                </ion-item>
+            </ng-container>
         </ion-card-content>
     </ion-card>
 </ion-content>

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import iro from '@jaames/iro';
 import {ModalController} from '@ionic/angular';
 import {EfeitoEmAndamentoComponent} from '../efeito-em-andamento/efeito-em-andamento.component';
-import {LightColors, MqttControllerService} from '../mqtt-controller.service';
+import {LightColors, WsControllerService} from '../ws-controller.service';
 
 @Component({
     selector: 'app-manual',
@@ -18,7 +18,7 @@ export class ManualPage implements OnInit {
         '#FFFFFF', '#FF0000', '#7CFC00', '#FFA500', '#FFFF00', '#FF00FF', '#00FFFF', '#00BFFF', '#0000FF', '#800000'
     ];
 
-    constructor(public modalController: ModalController, private wsService: MqttControllerService) {
+    constructor(public modalController: ModalController, private wsService: WsControllerService) {
         this.wsService.state.subscribe((currentState) => {
             this.syncPool = currentState.sync;
             this.changeColorRGB(currentState.light);

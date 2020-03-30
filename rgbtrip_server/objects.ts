@@ -6,7 +6,8 @@ export interface LightColors {
 
 export interface CurrentState {
     light: LightColors;
-    effect: Effect | null;
+    poolLight: LightColors;
+    effect: Effect | false;
     sync: boolean;
 }
 

@@ -21,14 +21,15 @@ export interface LightColors {
 
 export interface CurrentState {
     light: LightColors;
-    effect: Effect | null;
+    poolLight: LightColors;
+    effect: Effect | false;
     sync: boolean;
 }
 
 @Injectable({
     providedIn: 'root'
 })
-export class MqttControllerService {
+export class WsControllerService {
 
     private $connection: Observable<boolean>;
     private $state: Observable<CurrentState>;
@@ -37,7 +38,7 @@ export class MqttControllerService {
     private stateSubscribers: Subscriber<CurrentState>;
     private effectSubscribers: Subscriber<Effect | false>;
     public availableEffects: Effect[] = [];
-    private currentEffect: Effect | false;
+    public currentEffect: Effect | false = false;
 
     constructor(private socket: Socket) {
         this.socket.connect();
@@ -76,29 +77,42 @@ export class MqttControllerService {
         });
 
         /*
+             Evento de mudanca de efeito
+        */
+        this.$effectChange = new Observable<Effect | false>((subscriber) => {
+            this.effectSubscribers = subscriber;
+        });
+
+        /*
             Evento estado | Cor rgb.. botoes.. eventos
         */
         this.$state = new Observable<CurrentState>(stateSubscribers => {
             this.stateSubscribers = stateSubscribers;
             this.socket.on('state', (currentState: CurrentState) => {
-                this.currentEffect = currentState.effect;
+                console.log('Akii!');
+                console.log(currentState.effect);
+                console.log(this.currentEffect);
+                if (currentState.effect !== false) {
+                    /*
+                        Recebemos um efeito! Ja estamos nele sera?
+                     */
+                    if (this.currentEffect === false) {
+                        // Novo efeito!
+                        this.currentEffect = currentState.effect;
+                        this.effectSubscribers.next(this.currentEffect);
+                    } else {
+                        // Ja estamos em efeito = )
+                        this.currentEffect = currentState.effect;
+                    }
+                } else {
+                    // Sepa temos que desligar o efeito
+                    if (this.currentEffect !== false) {
+                        this.currentEffect = false;
+                        this.effectSubscribers.next(false);
+                    }
+                }
+
                 stateSubscribers.next(currentState);
-            });
-        });
-
-        /*
-             Evento de mudanca de efeito
-        */
-        this.$effectChange = new Observable<Effect | false>((subscriber) => {
-            this.effectSubscribers = subscriber;
-            this.socket.on('effect_start', (effect: Effect) => {
-                console.log('Comecando evento');
-                subscriber.next(effect);
-            });
-
-            this.socket.on('effect_end', (effect: Effect) => {
-                console.log('Parando evento!');
-                subscriber.next(false);
             });
         });
 
@@ -133,11 +147,6 @@ export class MqttControllerService {
 
     get effectChange(): Observable<Effect | false> {
         return this.$effectChange;
-    }
-
-
-    get getCurrentEffect(): Effect | false {
-        return this.currentEffect;
     }
 
     public sendMessage(topic: string, data: any) {
