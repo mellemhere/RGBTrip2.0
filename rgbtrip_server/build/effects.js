@@ -1,60 +1,46 @@
-import {Effect} from './objects';
-
-export const effects = [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.effects = [
     {
-        id: 0, // Faz nao aparecer na lista de efeitos
+        id: 0,
         name: 'Aleatorio',
         canChangeVelocity: true,
         canChangeIntensity: true,
-        velocity: 50,
-        intensity: 50
     },
     {
         id: 1,
         name: 'Clube Carvalho',
         canChangeVelocity: true,
         canChangeIntensity: true,
-        velocity: 50,
-        intensity: 50
     },
     {
         id: 2,
         name: 'Strobo',
         canChangeVelocity: true,
         canChangeIntensity: true,
-        velocity: 50,
-        intensity: 50
     },
     {
         id: 3,
         name: 'Strobo colorido',
         canChangeVelocity: true,
         canChangeIntensity: true,
-        velocity: 50,
-        intensity: 50
     },
     {
         id: 4,
         name: 'Balada',
         canChangeVelocity: true,
         canChangeIntensity: true,
-        velocity: 50,
-        intensity: 50
     },
     {
         id: 5,
         name: 'YMCA',
         canChangeVelocity: true,
         canChangeIntensity: true,
-        velocity: 50,
-        intensity: 50
     },
     {
         id: 6,
         name: 'Camale\u00E3o',
         canChangeVelocity: true,
         canChangeIntensity: false,
-        velocity: 50,
-        intensity: 50
     }
-] as Effect[];
+];

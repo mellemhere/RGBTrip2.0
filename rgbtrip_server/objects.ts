@@ -9,6 +9,7 @@ export interface CurrentState {
     poolLight: LightColors;
     effect: Effect | false;
     sync: boolean;
+    debug: number;
 }
 
 export interface UpdatePackage {
@@ -21,6 +22,6 @@ export interface Effect {
     name: string;
     canChangeIntensity: boolean;
     canChangeVelocity: boolean;
-    intensity: number;
-    velocity: number;
+    intensity: number; /* -50% -> +50% */
+    velocity: number;  /* -50% -> +50% */
 }

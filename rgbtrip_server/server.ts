@@ -1,13 +1,18 @@
-import {CurrentState, LightColors} from './objects';
-import {stringToRGB} from './util';
+import {LightColors} from './objects';
 import {effects} from './effects';
 import {Socket} from 'socket.io';
+import {MqttServer} from './mqttServer';
+import {StateController} from './stateController';
 
-const mosca = require('mosca');
-const app = require('express')();
+const express = require('express');
+const app = express();
 const httpServer = require('http').createServer(app);
 const ws = require('socket.io')(httpServer);
+const fs = require('fs');
 
+const mqttServer = new MqttServer();
+const currentStateController = new StateController(mqttServer, ws);
+mqttServer.setStateController(currentStateController);
 
 /*
     CONFIGURACOES
@@ -16,47 +21,37 @@ const configuracoesHTTP = {
     port: 80
 };
 
-const configuracoesMQTT = {
-    port: 1885
-};
-
-const currentState = {
-    effect: false, // effects[Math.floor(Math.random() * Math.floor(5))],
-    light: stringToRGB('white'),
-    poolLight: stringToRGB('white'),
-    sync: false
-} as CurrentState;
-
 
 httpServer.listen(configuracoesHTTP.port, () => {
     console.log('[WS] Online');
 });
 
-const serverMQTT = new mosca.Server(configuracoesMQTT, () => {
-    console.log('[MQTT] Online');
-});
+if (fs.existsSync(__dirname + '/../www')) {
+    console.log('Servindo diretorio: ' + __dirname + '/../www');
+    app.use(express.static(__dirname + '/../www'));
+} else {
+    console.log('Servindo diretorio: ' + __dirname + '/../../www');
+    app.use(express.static(__dirname + '/../../www'));
+}
 
-serverMQTT.on('clientConnected', (client) => {
-    console.log('Usuario se conectou MQTT');
-});
-
-serverMQTT.on('published', (packet, client) => {
-    console.log('Published', packet.payload.toString());
+app.get('/tabs/*', (req: any, res: any) => {
+    res.status(301).redirect('/');
 });
 
 function broadcastState() {
-    ws.emit('state', currentState);
+    console.log('[WS] Enviando mudanca de status para APP');
+    ws.emit('state', currentStateController.getCurrentState());
 }
 
 function broadcastStateBut(socket: Socket) {
-    console.log('[WS] Enviando mudanca de status');
-    socket.broadcast.emit('state', currentState);
+    console.log('[WS] Enviando mudanca de status para APP');
+    socket.broadcast.emit('state', currentStateController.getCurrentState());
 }
 
 ws.on('connection', (socket: Socket) => {
     console.log('[WS] Novo usuario conectado');
     socket.emit('welcome_package', {
-        state: currentState,
+        state: currentStateController.getCurrentState(),
         effects
     });
 
@@ -65,72 +60,46 @@ ws.on('connection', (socket: Socket) => {
     });
 
     socket.on('rgb_churras', (dados: LightColors) => {
-        currentState.light = dados;
+        currentStateController.setRGBColor(dados.r, dados.g, dados.b, true);
         broadcastStateBut(socket);
     });
 
     socket.on('rgb_pool', (dados: LightColors) => {
-        currentState.poolLight = dados;
+        currentStateController.setRGBColor(dados.r, dados.g, dados.b, false);
         broadcastStateBut(socket);
     });
 
     socket.on('effect_start', (effectId: number) => {
         console.log('[WS] Iniciando efeito! ID: ' + effectId);
-        currentState.effect = effects.filter((value) => {
-            return value.id === effectId;
-        })[0];
+        currentStateController.startEffect(effectId);
         broadcastState();
     });
 
     socket.on('effect_stop', () => {
         console.log('[WS] Parando efeito!');
-        currentState.effect = false;
+        currentStateController.stopEffect();
         broadcastState();
     });
 
     socket.on('effect_prop_intensity', (valor) => {
         console.log('[WS] Mudando intensidade do evento: ' + valor.val);
-        if (currentState.effect !== false) {
-            currentState.effect.intensity = valor.val;
-        } else {
-            console.log('[WS] Erro! Tentaram mudar um evento e nao estamos em um');
-        }
+        currentStateController.changeEffectProp('INT', valor.val);
         broadcastStateBut(socket);
     });
 
     socket.on('effect_prop_velocity', (valor) => {
         console.log('[WS] Mudando velocidade do evento: ' + valor.val);
-        if (currentState.effect !== false) {
-            currentState.effect.velocity = valor.val;
-        } else {
-            console.log('[WS] Erro! Tentaram mudar um evento e nao estamos em um');
-        }
+        currentStateController.changeEffectProp('VEL', valor.val);
         broadcastStateBut(socket);
     });
 
     socket.on('sync', (state: boolean) => {
-        currentState.sync = state;
+        currentStateController.setPoolLightSync(state);
         broadcastStateBut(socket);
     });
 
     socket.on('pool_power', (state: boolean) => {
         console.log('Pool power');
     });
-
 });
 
-// let b = false;
-//
-// setInterval(() => {
-//     if (b) {
-//         console.log('Comecando efeito');
-//         currentState.effect = effects[Math.floor(Math.random() * Math.floor(5))];
-//         b = false;
-//     } else {
-//         console.log('Parando efeito');
-//         currentState.effect = effects[Math.floor(Math.random() * Math.floor(5))];
-//         b = true;
-//     }
-//
-//     broadcastState();
-// }, 5000);

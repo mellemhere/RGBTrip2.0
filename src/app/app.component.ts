@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import {Platform} from "@ionic/angular";
+import {Platform} from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +20,7 @@ export class AppComponent {
 
   initializeApp() {
     this.platform.ready().then(() => {
+      document.body.classList.add('dark');
       this.statusBar.styleDefault();
       this.splashScreen.hide();
     });

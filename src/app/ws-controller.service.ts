@@ -50,6 +50,8 @@ export class WsControllerService {
             Eventos de conexão... para mostrar o loading de conectando...
         */
         this.$connection = new Observable<boolean>(subscriber => {
+            // subscriber.next(false);
+
             this.socket.on('connect', () => {
                 console.log('[WS] Conectado ao ws');
                 subscriber.next(true);

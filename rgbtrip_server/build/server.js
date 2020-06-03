@@ -1,44 +1,86 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = require("./util");
-var mosca = require('mosca');
+var effects_1 = require("./effects");
+var mqttServer_1 = require("./mqttServer");
+var stateController_1 = require("./stateController");
+var express = require('express');
+var app = express();
+var httpServer = require('http').createServer(app);
+var ws = require('socket.io')(httpServer);
+var fs = require('fs');
+var mqttServer = new mqttServer_1.MqttServer();
+var currentStateController = new stateController_1.StateController(mqttServer, ws);
+mqttServer.setStateController(currentStateController);
 /*
     CONFIGURACOES
  */
-var configuracoesWS = {
-    http: {
-        port: 3000,
-        bundle: true,
-        static: './'
-    }
+var configuracoesHTTP = {
+    port: 80
 };
-var configuracoesMQTT = {
-    port: 1885
-};
-var currentState = {
-    effect: null,
-    light: util_1.stringToRGB('white'),
-    sync: false
-};
-var serverWS = new mosca.Server(configuracoesWS, function () {
-    console.log('Servidor WS: Online');
+httpServer.listen(configuracoesHTTP.port, function () {
+    console.log('[WS] Online');
 });
-var serverMQTT = new mosca.Server(configuracoesMQTT, function () {
-    console.log('Servidor MQTT: Online');
-});
-function broadcastCurrentState() {
-    console.log('[MQTTWS] Transmitindo status');
-    serverWS.publish({
-        topic: 'state',
-        payload: Buffer.from(JSON.stringify(currentState)),
-        retain: false
-    });
+if (fs.existsSync(__dirname + '/../www')) {
+    console.log('Servindo diretorio: ' + __dirname + '/../www');
+    app.use(express.static(__dirname + '/../www'));
 }
-serverWS.on('clientConnected', function (client) {
-    console.log('[MQTTWS] Cliente conectado: ', client.id);
-    broadcastCurrentState();
+else {
+    console.log('Servindo diretorio: ' + __dirname + '/../../www');
+    app.use(express.static(__dirname + '/../../www'));
+}
+app.get('/tabs/*', function (req, res) {
+    res.status(301).redirect('/');
 });
-// fired when a message is received
-serverWS.on('published', function (packet) {
-    console.log('Published', packet.payload);
+function broadcastState() {
+    console.log('[WS] Enviando mudanca de status para APP');
+    ws.emit('state', currentStateController.getCurrentState());
+}
+function broadcastStateBut(socket) {
+    console.log('[WS] Enviando mudanca de status para APP');
+    socket.broadcast.emit('state', currentStateController.getCurrentState());
+}
+ws.on('connection', function (socket) {
+    console.log('[WS] Novo usuario conectado');
+    socket.emit('welcome_package', {
+        state: currentStateController.getCurrentState(),
+        effects: effects_1.effects
+    });
+    socket.on('disconnect', function () {
+        console.log('[WS] Um usuario saiu');
+    });
+    socket.on('rgb_churras', function (dados) {
+        currentStateController.setRGBColor(dados.r, dados.g, dados.b, true);
+        broadcastStateBut(socket);
+    });
+    socket.on('rgb_pool', function (dados) {
+        currentStateController.setRGBColor(dados.r, dados.g, dados.b, false);
+        broadcastStateBut(socket);
+    });
+    socket.on('effect_start', function (effectId) {
+        console.log('[WS] Iniciando efeito! ID: ' + effectId);
+        currentStateController.startEffect(effectId);
+        broadcastState();
+    });
+    socket.on('effect_stop', function () {
+        console.log('[WS] Parando efeito!');
+        currentStateController.stopEffect();
+        broadcastState();
+    });
+    socket.on('effect_prop_intensity', function (valor) {
+        console.log('[WS] Mudando intensidade do evento: ' + valor.val);
+        currentStateController.changeEffectProp('INT', valor.val);
+        broadcastStateBut(socket);
+    });
+    socket.on('effect_prop_velocity', function (valor) {
+        console.log('[WS] Mudando velocidade do evento: ' + valor.val);
+        currentStateController.changeEffectProp('VEL', valor.val);
+        broadcastStateBut(socket);
+    });
+    socket.on('sync', function (state) {
+        currentStateController.setPoolLightSync(state);
+        broadcastStateBut(socket);
+    });
+    socket.on('pool_power', function (state) {
+        console.log('Pool power');
+    });
 });

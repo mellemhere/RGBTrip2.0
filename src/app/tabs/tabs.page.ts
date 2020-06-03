@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {LoadingController} from '@ionic/angular';
 import {WsControllerService} from '../ws-controller.service';
 import {Router} from '@angular/router';
+
 @Component({
     selector: 'app-tabs',
     templateUrl: 'tabs.page.html',
@@ -14,7 +15,7 @@ export class TabsPage {
     constructor(public loadingController: LoadingController,
                 private wsService: WsControllerService,
                 private route: Router) {
-        wsService.connection.subscribe(async (state) => {
+        wsService.connection.subscribe((state) => {
             this.handleLoading(state);
         });
 
@@ -26,14 +27,20 @@ export class TabsPage {
     }
 
     private async handleLoading(state: boolean) {
+        console.log('Novo state: ' + state);
+        console.log(this.loading);
         if (!state && this.loading === false) {
             this.loading = await this.loadingController.create({
                 message: 'Conectado as luzes'
             });
             await this.loading.present();
-        } else if (this.loading !== false && state) {
-            (this.loading as HTMLIonLoadingElement).dismiss();
-            this.loading = false;
+        } else {
+            try {
+                await (this.loading as HTMLIonLoadingElement).dismiss();
+                this.loading = false;
+            } catch (e) {
+                console.log('Nao deu boa fechar o loading');
+            }
         }
     }
 

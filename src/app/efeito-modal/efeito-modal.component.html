@@ -1,18 +1,24 @@
 <div class="wrapper">
 
-    <div class="title">{{wsService.currentEffect.name}}</div>
+    <div class="title" *ngIf="wsService.currentEffect !== false">{{wsService.currentEffect.name}}</div>
 
     <div>
-        <ion-item-divider *ngIf="wsService.currentEffect.canChangeIntensity">Intensidade:</ion-item-divider>
-        <ion-item *ngIf="wsService.currentEffect.canChangeIntensity">
-            <ion-range min="0" max="100" step="1" (change)="intensityChange()">
+        <ion-item-divider *ngIf="wsService.currentEffect !== false && wsService.currentEffect.canChangeIntensity">
+            Intensidade:
+        </ion-item-divider>
+        <ion-item *ngIf="wsService.currentEffect !== false &&  wsService.currentEffect.canChangeIntensity">
+            <ion-range min="0" max="100" step="1" [(ngModel)]="wsService.currentEffect.intensity"
+                       (change)="intensityChange()">
                 <ion-icon size="small" slot="start" name="sunny"></ion-icon>
                 <ion-icon slot="end" name="sunny"></ion-icon>
             </ion-range>
         </ion-item>
-        <ion-item-divider *ngIf="wsService.currentEffect.canChangeVelocity">Velocidade:</ion-item-divider>
-        <ion-item *ngIf="wsService.currentEffect.canChangeVelocity">
-            <ion-range min="0" max="100" step="1" (ionChange)="velocityChange()">
+        <ion-item-divider *ngIf="wsService.currentEffect !== false && wsService.currentEffect.canChangeVelocity">
+            Velocidade:
+        </ion-item-divider>
+        <ion-item *ngIf="wsService.currentEffect !== false &&  wsService.currentEffect.canChangeVelocity">
+            <ion-range min="0" max="100" step="1" [(ngModel)]="wsService.currentEffect.intensity"
+                       (ionChange)="velocityChange()">
                 <ion-icon size="small" slot="start" name="speedometer-outline"></ion-icon>
                 <ion-icon slot="end" name="speedometer-outline"></ion-icon>
             </ion-range>
