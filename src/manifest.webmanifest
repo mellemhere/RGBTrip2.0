@@ -1,8 +1,8 @@
 {
-  "name": "app",
-  "short_name": "app",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "name": "RGBTRIP",
+  "short_name": "RGBTRIP",
+  "theme_color": "#22231d",
+  "background_color": "#22231d",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

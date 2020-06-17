@@ -12,11 +12,6 @@ export interface CurrentState {
     debug: number;
 }
 
-export interface UpdatePackage {
-    topic: string;
-    state: CurrentState;
-}
-
 export interface Effect {
     id: number;
     name: string;
@@ -24,4 +19,5 @@ export interface Effect {
     canChangeVelocity: boolean;
     intensity: number; /* -50% -> +50% */
     velocity: number;  /* -50% -> +50% */
+    sonorous: boolean;
 }

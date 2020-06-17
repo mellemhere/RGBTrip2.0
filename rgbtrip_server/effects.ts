@@ -7,7 +7,8 @@ export const effects = [
         canChangeVelocity: true,
         canChangeIntensity: true,
         velocity: 50,
-        intensity: 50
+        intensity: 50,
+        sonorous: false,
     },
     {
         id: 1,
@@ -15,7 +16,8 @@ export const effects = [
         canChangeVelocity: true,
         canChangeIntensity: true,
         velocity: 50,
-        intensity: 50
+        intensity: 50,
+        sonorous: false,
     },
     {
         id: 2,
@@ -23,7 +25,8 @@ export const effects = [
         canChangeVelocity: true,
         canChangeIntensity: true,
         velocity: 50,
-        intensity: 50
+        intensity: 50,
+        sonorous: false,
     },
     {
         id: 3,
@@ -31,7 +34,8 @@ export const effects = [
         canChangeVelocity: true,
         canChangeIntensity: true,
         velocity: 50,
-        intensity: 50
+        intensity: 50,
+        sonorous: false,
     },
     {
         id: 4,
@@ -39,7 +43,8 @@ export const effects = [
         canChangeVelocity: true,
         canChangeIntensity: true,
         velocity: 50,
-        intensity: 50
+        intensity: 50,
+        sonorous: true,
     },
     {
         id: 5,
@@ -47,7 +52,8 @@ export const effects = [
         canChangeVelocity: true,
         canChangeIntensity: true,
         velocity: 50,
-        intensity: 50
+        intensity: 50,
+        sonorous: false,
     },
     {
         id: 6,

@@ -3,16 +3,6 @@ import {Socket} from 'ngx-socket-io';
 import {Observable, Subscriber} from 'rxjs';
 
 
-export interface Effect {
-    id: number;
-    name: string;
-    canChangeIntensity: boolean;
-    canChangeVelocity: boolean;
-    intensity: number;
-    velocity: number;
-}
-
-
 export interface LightColors {
     r: number;
     g: number;
@@ -24,7 +14,19 @@ export interface CurrentState {
     poolLight: LightColors;
     effect: Effect | false;
     sync: boolean;
+    debug: number;
 }
+
+export interface Effect {
+    id: number;
+    name: string;
+    canChangeIntensity: boolean;
+    canChangeVelocity: boolean;
+    intensity: number; /* -50% -> +50% */
+    velocity: number;  /* -50% -> +50% */
+    sonorous: boolean;
+}
+
 
 @Injectable({
     providedIn: 'root'
@@ -40,9 +42,23 @@ export class WsControllerService {
     public availableEffects: Effect[] = [];
     public currentEffect: Effect | false = false;
 
+    private isConnected = false;
+    private lastStateSent = 0;
+
     constructor(private socket: Socket) {
         this.socket.connect();
         this.setupEvents();
+    }
+
+    private connectionSender(subscriber: Subscriber<any>, value: any) {
+        if (((new Date().getTime()) - this.lastStateSent) > 10) {
+            subscriber.next(value);
+            this.lastStateSent = new Date().getTime();
+        } else {
+            setTimeout(() => {
+                this.connectionSender(subscriber, value);
+            }, 15);
+        }
     }
 
     private setupEvents() {
@@ -50,33 +66,40 @@ export class WsControllerService {
             Eventos de conexão... para mostrar o loading de conectando...
         */
         this.$connection = new Observable<boolean>(subscriber => {
-            // subscriber.next(false);
+            this.connectionSender(subscriber, false);
+            this.isConnected = false;
 
             this.socket.on('connect', () => {
                 console.log('[WS] Conectado ao ws');
-                subscriber.next(true);
+                this.connectionSender(subscriber, true);
+                this.isConnected = true;
             });
 
             this.socket.on('connect_error', () => {
                 console.log('[WS] Morreu :( connect_error');
-                subscriber.next(false);
+                this.connectionSender(subscriber, false);
+                this.isConnected = false;
             });
 
             this.socket.on('connect_timeout', () => {
                 console.log('[WS] Morreu :( connect_timeout');
-                subscriber.next(false);
+                this.connectionSender(subscriber, false);
+                this.isConnected = false;
             });
 
             this.socket.on('error', () => {
                 console.log('[WS] Morreu :( error');
-                subscriber.next(false);
+                this.connectionSender(subscriber, false);
+                this.isConnected = false;
             });
 
             this.socket.on('disconnect', () => {
                 console.log('[WS] Morreu :( disconnect');
-                subscriber.next(false);
+                this.connectionSender(subscriber, false);
+                this.isConnected = false;
             });
         });
+        this.$connection.subscribe(); // fuck lazy loading
 
         /*
              Evento de mudanca de efeito
@@ -90,51 +113,59 @@ export class WsControllerService {
         */
         this.$state = new Observable<CurrentState>(stateSubscribers => {
             this.stateSubscribers = stateSubscribers;
-            this.socket.on('state', (currentState: CurrentState) => {
-                console.log('Akii!');
-                console.log(currentState.effect);
-                console.log(this.currentEffect);
-                if (currentState.effect !== false) {
-                    /*
-                        Recebemos um efeito! Ja estamos nele sera?
-                     */
-                    if (this.currentEffect === false) {
-                        // Novo efeito!
-                        this.currentEffect = currentState.effect;
-                        this.effectSubscribers.next(this.currentEffect);
-                    } else {
-                        // Ja estamos em efeito = )
-                        this.currentEffect = currentState.effect;
-                    }
-                } else {
-                    // Sepa temos que desligar o efeito
-                    if (this.currentEffect !== false) {
-                        this.currentEffect = false;
-                        this.effectSubscribers.next(false);
-                    }
-                }
+        });
+        this.$state.subscribe(); // fuck lazy loading
 
-                stateSubscribers.next(currentState);
-            });
+        this.socket.on('data_state', (currentState: CurrentState) => {
+            console.log('Novo pacote de dados:');
+            console.log(currentState);
+            if (currentState.effect !== false) {
+                /*
+                    Recebemos um efeito! Ja estamos nele sera?
+                 */
+                if (this.currentEffect === false) {
+                    // Novo efeito!
+                    console.log('Devemos executar um efeito:' + currentState.effect.name);
+                    this.currentEffect = currentState.effect;
+                    this.effectSubscribers.next(this.currentEffect);
+                } else {
+                    // Ja estamos em efeito = )
+                    console.log('Ja estava no efeito');
+                    this.currentEffect = currentState.effect;
+                }
+            } else {
+                // Sepa temos que desligar o efeito
+                if (this.currentEffect !== false) {
+                    this.currentEffect = false;
+                    this.effectSubscribers.next(false);
+                }
+            }
+
+            this.stateSubscribers.next(currentState);
         });
 
         /*
             Evento quando abrimos o APP... sincroniza
          */
         this.socket.on('welcome_package', (welcomePackage) => {
+            console.log('Sincronizado!');
+            console.log(welcomePackage);
+
             if (this.stateSubscribers !== undefined) {
                 this.stateSubscribers.next(welcomePackage.state);
+            }
+
+            if (welcomePackage.state.effect === false && this.currentEffect !== false) {
+                this.effectSubscribers.next(false);
             }
 
             this.currentEffect = welcomePackage.state.effect;
             this.availableEffects = welcomePackage.effects;
 
             if (this.currentEffect !== false) {
-                console.log('Currently in effect');
                 this.effectSubscribers.next(this.currentEffect);
             }
         });
-
 
     }
 
@@ -150,6 +181,11 @@ export class WsControllerService {
     get effectChange(): Observable<Effect | false> {
         return this.$effectChange;
     }
+
+    get connected(): boolean {
+        return this.isConnected;
+    }
+
 
     public sendMessage(topic: string, data: any) {
         this.socket.emit(topic, data);

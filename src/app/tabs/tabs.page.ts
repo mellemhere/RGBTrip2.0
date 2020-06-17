@@ -11,35 +11,78 @@ import {Router} from '@angular/router';
 export class TabsPage {
 
     private loading: boolean | HTMLIonLoadingElement = false;
+    private lastState: boolean;
+    private interval;
 
     constructor(public loadingController: LoadingController,
                 private wsService: WsControllerService,
                 private route: Router) {
-        wsService.connection.subscribe((state) => {
-            this.handleLoading(state);
+        wsService.connection.subscribe(async (state) => {
+            if (state !== this.lastState) {
+                this.lastState = state;
+                await this.handleLoading(state);
+            }
         });
+
 
         wsService.effectChange.subscribe(async (effect) => {
             if (effect !== false) {
                 await route.navigateByUrl('tabs/efeitos');
             }
         });
+
+        /*
+             Fix para sempre tentarmos fechar os loadings...
+         */
+        setInterval(() => {
+            if (this.wsService.connected) {
+                this.whilePromise(
+                    () => this.loadingController.getTop().then(topLoader => topLoader != null),
+                    () => this.loadingController.dismiss()
+                );
+            }
+        }, 500);
+
+    }
+
+    private whilePromise(condition: () => Promise<boolean>, action: () => Promise<boolean>) {
+        condition().then(value => {
+            if (value) {
+                action().then(closed => {
+                    if (closed) {
+                        this.whilePromise(condition, action);
+                    }
+                });
+            }
+        });
     }
 
     private async handleLoading(state: boolean) {
-        console.log('Novo state: ' + state);
-        console.log(this.loading);
         if (!state && this.loading === false) {
             this.loading = await this.loadingController.create({
                 message: 'Conectado as luzes'
             });
             await this.loading.present();
+
+            clearInterval(this.interval);
+            this.interval = setInterval(() => {
+                if (this.wsService.connected) {
+                    this.handleLoading(true);
+                }
+            }, 2000);
+
         } else {
             try {
                 await (this.loading as HTMLIonLoadingElement).dismiss();
                 this.loading = false;
+                clearInterval(this.interval);
             } catch (e) {
-                console.log('Nao deu boa fechar o loading');
+                /*
+                    Tentar denovo em alguns segundos
+                 */
+                setTimeout(() => {
+                    this.handleLoading(state);
+                }, 500);
             }
         }
     }

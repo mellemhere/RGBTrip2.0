@@ -16,8 +16,12 @@ import {SocketIoModule, SocketIoConfig} from 'ngx-socket-io';
 import {FormsModule} from '@angular/forms';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
-// const config: SocketIoConfig = {url: 'http://' + window.location.hostname, options: {}};
-const config: SocketIoConfig = {url: 'http://192.168.100.10', options: {}};
+
+let urlWS = 'http://192.168.100.10';
+if (window.location.hostname !== null) {
+    urlWS = 'http://' + window.location.hostname;
+}
+const config: SocketIoConfig = {url: urlWS, options: {}};
 
 @NgModule({
     declarations: [AppComponent, EfeitoEmAndamentoComponent, EfeitoModalComponent],

@@ -31,14 +31,6 @@ else {
 app.get('/tabs/*', function (req, res) {
     res.status(301).redirect('/');
 });
-function broadcastState() {
-    console.log('[WS] Enviando mudanca de status para APP');
-    ws.emit('state', currentStateController.getCurrentState());
-}
-function broadcastStateBut(socket) {
-    console.log('[WS] Enviando mudanca de status para APP');
-    socket.broadcast.emit('state', currentStateController.getCurrentState());
-}
 ws.on('connection', function (socket) {
     console.log('[WS] Novo usuario conectado');
     socket.emit('welcome_package', {
@@ -50,35 +42,33 @@ ws.on('connection', function (socket) {
     });
     socket.on('rgb_churras', function (dados) {
         currentStateController.setRGBColor(dados.r, dados.g, dados.b, true);
-        broadcastStateBut(socket);
+        currentStateController.emit(socket);
     });
     socket.on('rgb_pool', function (dados) {
         currentStateController.setRGBColor(dados.r, dados.g, dados.b, false);
-        broadcastStateBut(socket);
+        currentStateController.emit(socket);
     });
     socket.on('effect_start', function (effectId) {
         console.log('[WS] Iniciando efeito! ID: ' + effectId);
         currentStateController.startEffect(effectId);
-        broadcastState();
     });
     socket.on('effect_stop', function () {
         console.log('[WS] Parando efeito!');
         currentStateController.stopEffect();
-        broadcastState();
     });
     socket.on('effect_prop_intensity', function (valor) {
         console.log('[WS] Mudando intensidade do evento: ' + valor.val);
         currentStateController.changeEffectProp('INT', valor.val);
-        broadcastStateBut(socket);
+        currentStateController.emit(socket);
     });
     socket.on('effect_prop_velocity', function (valor) {
         console.log('[WS] Mudando velocidade do evento: ' + valor.val);
         currentStateController.changeEffectProp('VEL', valor.val);
-        broadcastStateBut(socket);
+        currentStateController.emit(socket);
     });
     socket.on('sync', function (state) {
         currentStateController.setPoolLightSync(state);
-        broadcastStateBut(socket);
+        currentStateController.emit(socket);
     });
     socket.on('pool_power', function (state) {
         console.log('Pool power');

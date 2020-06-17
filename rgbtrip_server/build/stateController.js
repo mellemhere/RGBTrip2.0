@@ -22,17 +22,19 @@ var StateController = /** @class */ (function () {
             return value.id === effectID;
         })[0];
         this.mqttServer.broadcastChange(this.currentState, 'EFFECT');
+        this.broadcast();
     };
     StateController.prototype.stopEffect = function () {
         this.currentState.effect = false;
         this.mqttServer.broadcastChange(this.currentState, 'EFFECT');
+        this.broadcast();
     };
     StateController.prototype.changeEffectProp = function (propType, val) {
         if (this.currentState.effect !== false) {
             if (propType === 'INT') {
                 this.currentState.effect.intensity = val;
             }
-            else {
+            else if (propType === 'VEL') {
                 this.currentState.effect.velocity = val;
             }
         }
@@ -49,7 +51,7 @@ var StateController = /** @class */ (function () {
             Erro de sync
              */
             this.stopEffect();
-            this.ws.emit('state', this.getCurrentState());
+            this.ws.emit('data_state', this.getCurrentState());
         }
         if (normalLight) {
             this.currentState.light.r = r;
@@ -75,7 +77,16 @@ var StateController = /** @class */ (function () {
             sync: false,
             debug: 0
         };
-        this.ws.emit('state', this.getCurrentState());
+        this.ws.emit('data_state', this.getCurrentState());
+    };
+    StateController.prototype.broadcast = function () {
+        console.log('[WS] Enviando mudanca de status para APP - Todos');
+        console.log(this.getCurrentState());
+        this.ws.emit('data_state', this.getCurrentState());
+    };
+    StateController.prototype.emit = function (socket) {
+        console.log('[WS] Enviando mudanca de status para APP - Somente um user');
+        socket.broadcast.emit('data_state', this.getCurrentState());
     };
     return StateController;
 }());

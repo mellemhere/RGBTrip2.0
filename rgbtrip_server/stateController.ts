@@ -2,6 +2,7 @@ import {CurrentState} from './objects';
 import {stringToRGB} from './util';
 import {MqttServer} from './mqttServer';
 import {effects} from './effects';
+import {Socket} from 'socket.io';
 
 
 export class StateController {
@@ -29,18 +30,20 @@ export class StateController {
         })[0];
 
         this.mqttServer.broadcastChange(this.currentState, 'EFFECT');
+        this.broadcast();
     }
 
     public stopEffect() {
         this.currentState.effect = false;
         this.mqttServer.broadcastChange(this.currentState, 'EFFECT');
+        this.broadcast();
     }
 
     public changeEffectProp(propType: 'INT' | 'VEL', val: number) {
         if (this.currentState.effect !== false) {
             if (propType === 'INT') {
                 this.currentState.effect.intensity = val;
-            } else {
+            } else if (propType === 'VEL') {
                 this.currentState.effect.velocity = val;
             }
         } else {
@@ -59,7 +62,7 @@ export class StateController {
             Erro de sync
              */
             this.stopEffect();
-            this.ws.emit('state', this.getCurrentState());
+            this.ws.emit('data_state', this.getCurrentState());
         }
 
         if (normalLight) {
@@ -86,8 +89,18 @@ export class StateController {
             sync: false,
             debug: 0
         } as CurrentState;
-        this.ws.emit('state', this.getCurrentState());
+        this.ws.emit('data_state', this.getCurrentState());
+    }
 
+    public broadcast() {
+        console.log('[WS] Enviando mudanca de status para APP - Todos');
+        console.log(this.getCurrentState());
+        this.ws.emit('data_state', this.getCurrentState());
+    }
+
+    public emit(socket: Socket) {
+        console.log('[WS] Enviando mudanca de status para APP - Somente um user');
+        socket.broadcast.emit('data_state', this.getCurrentState());
     }
 
 }

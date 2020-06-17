@@ -1,7 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import iro from '@jaames/iro';
-import {ModalController} from '@ionic/angular';
-import {EfeitoEmAndamentoComponent} from '../efeito-em-andamento/efeito-em-andamento.component';
 import {LightColors, WsControllerService} from '../ws-controller.service';
 
 @Component({
@@ -15,10 +13,10 @@ export class ManualPage implements OnInit {
     public syncPool = false;
 
     public hotColors = [
-        '#FFFFFF', '#FF0000', '#7CFC00', '#FFA500', '#FFFF00', '#FF00FF', '#00FFFF', '#00BFFF', '#0000FF', '#800000'
+        '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#673ab7', '#000000'
     ];
 
-    constructor(public modalController: ModalController, private wsService: WsControllerService) {
+    constructor(private wsService: WsControllerService) {
         this.wsService.state.subscribe((currentState) => {
             this.syncPool = currentState.sync;
             this.changeColorRGB(currentState.light);
@@ -64,16 +62,6 @@ export class ManualPage implements OnInit {
 
     public changeColorRGB(rgbColor: LightColors) {
         this.colorWheel.color.rgb = rgbColor;
-    }
-
-    async showCurrentlyInEffectModal() {
-        const modal = await this.modalController.create({
-            component: EfeitoEmAndamentoComponent,
-            backdropDismiss: false,
-            cssClass: 'efeito-em-andamento-modal',
-            mode: 'md'
-        });
-        await modal.present();
     }
 
 }

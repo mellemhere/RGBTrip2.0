@@ -20,20 +20,10 @@ export class EfeitosPage {
                 await this.closeCurrentEffect();
             }
         });
-
-        this.checkState().then(() => {
-        });
     }
-
 
     public filtroEfeitos(efeito: Effect) {
         return efeito.id > 0;
-    }
-
-    async checkState() {
-        if (this.wsService.currentEffect !== false) {
-            await this.openCurrentEffect();
-        }
     }
 
     async closeCurrentEffect() {
@@ -43,7 +33,7 @@ export class EfeitosPage {
     }
 
     async openCurrentEffect() {
-        this.closeCurrentEffect();
+        await this.closeCurrentEffect();
 
         this.effectModal = await this.modalController.create({
             component: EfeitoModalComponent,
@@ -51,12 +41,10 @@ export class EfeitosPage {
             cssClass: 'efeito-modal',
             mode: 'md'
         });
-        console.log(this.effectModal);
         await this.effectModal.present();
     }
 
     public startEffect(effectId: number) {
-        console.log('oi');
         this.wsService.sendMessage('effect_start', effectId);
     }
 

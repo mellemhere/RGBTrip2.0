@@ -1,4 +1,5 @@
 <ion-content [fullscreen]="true">
+    <h2 class="title-stripe"><span>Efeitos Temporizados</span></h2>
     <ion-card>
         <ion-card-content>
             <ion-item lines="none" (click)="startEffect(0);">
@@ -15,7 +16,33 @@
         </ion-card-header>
         <ion-card-content>
             <ng-container *ngFor="let efeito of wsService.availableEffects.filter(filtroEfeitos)">
-                <ion-item lines="none" (click)="startEffect(efeito.id)">
+                <ion-item lines="none" (click)="startEffect(efeito.id)" *ngIf="!efeito.sonorous">
+                    <ion-avatar slot="start">
+                        <ion-icon name="play-circle-outline"></ion-icon>
+                    </ion-avatar>
+                    <ion-label>{{efeito.name}}</ion-label>
+                </ion-item>
+            </ng-container>
+        </ion-card-content>
+    </ion-card>
+    <h2 class="title-stripe"><span>Efeitos Sonoros</span></h2>
+    <ion-card>
+        <ion-card-content>
+            <ion-item lines="none" (click)="startEffect(0);">
+                <ion-avatar slot="start">
+                    <ion-icon name="shuffle-sharp"></ion-icon>
+                </ion-avatar>
+                <ion-label>Aleatório</ion-label>
+            </ion-item>
+        </ion-card-content>
+    </ion-card>
+    <ion-card>
+        <ion-card-header>
+            <ion-card-subtitle>Selecione um efeito:</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+            <ng-container *ngFor="let efeito of wsService.availableEffects.filter(filtroEfeitos)">
+                <ion-item lines="none" (click)="startEffect(efeito.id)" *ngIf="efeito.sonorous">
                     <ion-avatar slot="start">
                         <ion-icon name="play-circle-outline"></ion-icon>
                     </ion-avatar>
